@@ -1,0 +1,23 @@
+.list {
+  list-style: none;
+  border-radius: 12px;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.item {
+  display: flex;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid #f4f4f5;
+  color: #18181b;
+  text-decoration: none;
+
+  &:hover {
+    background: #fafafa;
+  }
+}
+
+.id {
+  color: #a1a1aa;
+}
