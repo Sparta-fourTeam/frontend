@@ -7,7 +7,7 @@ export default function SignIn() {
   return (
     <Container>
       <Paper>
-        <Title title="로그인" subtitle="계정을 선택해 시작하세요" />
+        <Title title="로그인" subtitle="계정을 선택해서 시작하세요" />
         <SignInForm />
       </Paper>
     </Container>
