@@ -1,0 +1,12 @@
+.buttonContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.error {
+  margin-top: 4px;
+  text-align: center;
+  font-size: 0.875rem;
+  color: #ef4444;
+}
