@@ -3,16 +3,18 @@ import s from "./Button.module.scss";
 
 const cx = classnames.bind(s);
 
-// 색 종류 (필요하면 여기랑 scss에 추가)
-type ButtonVariant = "primary" | "outline";
+type ButtonVariant = "primary" | "outline" | "danger";
+type ButtonSize = "medium" | "small";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
+  size?: ButtonSize;
   fullWidth?: boolean;
 }
 
 export default function Button({
   variant = "primary",
+  size = "medium",
   fullWidth = false,
   type = "button",
   className,
@@ -22,7 +24,7 @@ export default function Button({
   return (
     <button
       type={type}
-      className={cx("button", variant, { fullWidth }, className)}
+      className={cx("button", variant, size, { fullWidth }, className)}
       {...rest}
     >
       {children}

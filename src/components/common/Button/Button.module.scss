@@ -41,3 +41,21 @@
     background: #fafafa;
   }
 }
+
+.danger {
+  border: 1px solid #fecaca;
+  background: #ffffff;
+  color: #dc2626;
+
+  &:hover:not(:disabled) {
+    background: #fef2f2;
+  }
+}
+
+// ===== 크기 =====
+.small {
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 8px;
+  font-size: 0.875rem;
+}
