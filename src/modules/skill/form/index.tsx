@@ -6,7 +6,7 @@ import s from "./skillForm.module.scss";
 import Button from "@/components/common/Button";
 import StatGroupSection from "./components/statGroupSection";
 import { STAT_GROUPS } from "@/constants/skillStats";
-import { formToRequest, type SkillFormState } from "./formState";
+import { findEmptyGroups, formToRequest, type SkillFormState } from "./formState";
 import type { SkillRequest } from "@/apis/skill";
 import type { NameLabelItem } from "@/apis/nameLabel";
 
@@ -17,20 +17,25 @@ interface SkillFormProps {
   castTypes: NameLabelItem[];
   projectilePaths: NameLabelItem[];
   submitText: string;
+  error?: string | null;
   onSubmit: (body: SkillRequest) => Promise<void>;
-  onDelete?: () => void;
+  onDelete?: () => Promise<void>;
 }
+
+const preventWheel = (e: React.WheelEvent<HTMLInputElement>) => e.currentTarget.blur();
 
 export default function SkillForm({
   initial,
   castTypes,
   projectilePaths,
   submitText,
+  error,
   onSubmit,
   onDelete,
 }: SkillFormProps) {
   const [form, setForm] = useState(initial);
-  const [submitting, setSubmitting] = useState(false);
+  const [busy, setBusy] = useState<"submit" | "delete" | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
 
   const set = <K extends keyof SkillFormState>(
     key: K,
@@ -39,10 +44,30 @@ export default function SkillForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitting(true);
+    if (busy) return;
+
+    const emptyGroups = findEmptyGroups(form);
+    if (emptyGroups.length > 0) {
+      setFormError(
+        `${emptyGroups.join(", ")} 그룹에 값을 하나 이상 입력하거나 체크를 해제하세요.`,
+      );
+      return;
+    }
+
+    setFormError(null);
+    setBusy("submit");
     await onSubmit(formToRequest(form));
-    setSubmitting(false);
+    setBusy(null);
   };
+
+  const handleDelete = async () => {
+    if (!onDelete || busy) return;
+    setBusy("delete");
+    await onDelete();
+    setBusy(null);
+  };
+
+  const message = formError ?? error;
 
   return (
     <form className={cx("form")} onSubmit={handleSubmit}>
@@ -111,6 +136,7 @@ export default function SkillForm({
               className={cx("input")}
               value={form.maxLevel}
               onChange={(e) => set("maxLevel", e.target.value)}
+              onWheel={preventWheel}
               min={1}
               step={1}
               required
@@ -124,6 +150,7 @@ export default function SkillForm({
               className={cx("input")}
               value={form.unlockLevel}
               onChange={(e) => set("unlockLevel", e.target.value)}
+              onWheel={preventWheel}
               placeholder="비워두면 1"
               min={1}
               step={1}
@@ -165,13 +192,14 @@ export default function SkillForm({
       </section>
 
       <div className={cx("footer")}>
+        {message && <p className={cx("error")}>{message}</p>}
         {onDelete && (
-          <Button variant="danger" onClick={onDelete} disabled={submitting}>
-            삭제
+          <Button variant="danger" onClick={handleDelete} disabled={busy !== null}>
+            {busy === "delete" ? "삭제 중..." : "삭제"}
           </Button>
         )}
-        <Button type="submit" disabled={submitting} className={cx("submit")}>
-          {submitting ? "저장 중..." : submitText}
+        <Button type="submit" disabled={busy !== null} className={cx("submit")}>
+          {busy === "submit" ? "저장 중..." : submitText}
         </Button>
       </div>
     </form>

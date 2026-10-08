@@ -14,7 +14,6 @@ export interface StatField {
   label: string;
   type: "int" | "float";
   ratio?: boolean;
-  responseKey?: string;
 }
 
 export interface StatGroup {
@@ -33,7 +32,7 @@ export const STAT_GROUPS: StatGroup[] = [
       { key: "range", label: "사거리", type: "float" },
       { key: "projectileCount", label: "투사체 개수", type: "int" },
       { key: "castCount", label: "시전 횟수", type: "int" },
-      { key: "castInterval", label: "시전 간격", type: "float", responseKey: "caseInterval" },
+      { key: "castInterval", label: "시전 간격", type: "float" },
     ],
   },
   {

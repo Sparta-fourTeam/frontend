@@ -43,7 +43,7 @@ export const detailToForm = (skill: SkillDetail): SkillFormState => {
     if (!data) continue;
     groups[group.key].enabled = true;
     for (const field of group.fields) {
-      const value = data[field.key] ?? (field.responseKey ? data[field.responseKey] : null);
+      const value = data[field.key];
       groups[group.key].values[field.key] = value == null ? "" : String(value);
     }
   }
@@ -90,3 +90,9 @@ export const formToRequest = (form: SkillFormState): SkillRequest => {
 
   return request;
 };
+
+export const findEmptyGroups = (form: SkillFormState) =>
+  STAT_GROUPS.filter((group) => {
+    const state = form.groups[group.key];
+    return state.enabled && group.fields.every((f) => state.values[f.key].trim() === "");
+  }).map((group) => group.label);

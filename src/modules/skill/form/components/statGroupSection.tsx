@@ -42,6 +42,7 @@ export default function StatGroupSection({ group, state, onChange }: StatGroupSe
                 step={field.type === "int" ? 1 : "any"}
                 min={field.ratio ? 0 : undefined}
                 max={field.ratio ? 1 : undefined}
+                onWheel={(e) => e.currentTarget.blur()}
                 onChange={(e) =>
                   onChange({ ...state, values: { ...state.values, [field.key]: e.target.value } })
                 }

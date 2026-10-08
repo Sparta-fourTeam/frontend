@@ -1,4 +1,4 @@
-import CastTypeList from "@/modules/skill/cast_types";
+import CastTypeList from "@/modules/skill/castTypes";
 
 export default function CastTypesPage() {
   return <CastTypeList />;

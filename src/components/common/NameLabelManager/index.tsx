@@ -51,24 +51,35 @@ export default function NameLabelManager({
     };
   }, [api]);
 
-  // 등록/수정/삭제 공통 처리: 실패하면 에러 표시, 성공하면 목록 새로고침
+  // 등록/수정/삭제 공통 처리: 실패하면 에러 메시지, 성공하면 목록 새로고침 후 null
   const run = async (action: () => Promise<unknown>) => {
     try {
       await action();
-      setItems(await api.getAll());
-      setError(null);
-      return true;
     } catch (e) {
-      setError(e instanceof Error ? e.message : "요청에 실패했습니다.");
-      return false;
+      return e instanceof Error ? e.message : "요청에 실패했습니다.";
     }
+
+    setError(null);
+    try {
+      setItems(await api.getAll());
+    } catch {
+      setError("저장은 됐지만 목록을 새로고침하지 못했습니다. 페이지를 새로고침해 주세요.");
+    }
+    return null;
   };
 
-  const handleCreate = (body: NameLabelRequest) => run(() => api.create(body));
+  const handleCreate = async (body: NameLabelRequest) => {
+    const message = await run(() => api.create(body));
+    if (message) setError(message);
+    return message === null;
+  };
+
   const handleUpdate = (id: number, body: NameLabelRequest) => run(() => api.update(id, body));
-  const handleDelete = (item: NameLabelItem) => {
+
+  const handleDelete = async (item: NameLabelItem) => {
     if (!confirm(`'${item.label}' ${itemName}을(를) 삭제할까요?`)) return;
-    run(() => api.remove(item.id));
+    const message = await run(() => api.remove(item.id));
+    if (message) setError(message);
   };
 
   return (

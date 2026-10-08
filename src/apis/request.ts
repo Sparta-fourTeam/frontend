@@ -1,12 +1,7 @@
 export const throwIfFailed = async (response: Response) => {
   if (response.ok) return;
-  let message = "요청에 실패했습니다.";
-  try {
-    const data = await response.json();
-    if (data.message) message = data.message;
-  } catch {
-  }
-  throw new Error(message);
+  const data = await response.json().catch(() => null);
+  throw new Error(data?.message ?? "요청에 실패했습니다.");
 };
 
 export const jsonRequest = (method: string, body: unknown): RequestInit => ({

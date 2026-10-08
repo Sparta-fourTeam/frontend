@@ -26,6 +26,7 @@ export default function SkillDetail({ skillId }: SkillDetailProps) {
   const router = useRouter();
   const { castTypes, projectilePaths, error: optionError } = useSkillOptions();
   const [skill, setSkill] = useState<SkillDetailData | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -35,7 +36,7 @@ export default function SkillDetail({ skillId }: SkillDetailProps) {
         if (!ignore) setSkill(data);
       })
       .catch((e) => {
-        if (!ignore) setError(e instanceof Error ? e.message : "스킬을 불러오지 못했습니다.");
+        if (!ignore) setLoadError(e instanceof Error ? e.message : "스킬을 불러오지 못했습니다.");
       });
     return () => {
       ignore = true;
@@ -63,8 +64,10 @@ export default function SkillDetail({ skillId }: SkillDetailProps) {
 
   return (
     <>
-      <Title title={skill ? skill.name : "스킬 상세"} subtitle={`ID ${skillId}`} align="left" />
-      {(error || optionError) && <p className={cx("error")}>{error ?? optionError}</p>}
+      <Title title={skill ? skill.name : "스킬 상세"} align="left" />
+      {(loadError || optionError) && (
+        <p className={cx("error")}>{loadError ?? optionError}</p>
+      )}
 
       {skill ? (
         <SkillForm
@@ -72,11 +75,12 @@ export default function SkillDetail({ skillId }: SkillDetailProps) {
           castTypes={castTypes}
           projectilePaths={projectilePaths}
           submitText="저장"
+          error={error}
           onSubmit={handleSubmit}
           onDelete={handleDelete}
         />
       ) : (
-        !error && <p className={cx("empty")}>불러오는 중...</p>
+        !loadError && <p className={cx("empty")}>불러오는 중...</p>
       )}
     </>
   );
