@@ -4,7 +4,7 @@ import { useState } from "react";
 import classnames from "classnames/bind";
 import s from "./NameLabelManager.module.scss";
 import Button from "@/components/common/Button";
-import type { NameLabelRequest } from "@/apis/nameLabel";
+import { NAME_PATTERN, NAME_RULE, type NameLabelRequest } from "@/apis/nameLabel";
 
 const cx = classnames.bind(s);
 
@@ -14,7 +14,6 @@ interface NameLabelFormProps {
   labelPlaceholder?: string;
 }
 
-// 등록 폼
 export default function NameLabelForm({
   onSubmit,
   namePlaceholder = "이름",
@@ -41,10 +40,9 @@ export default function NameLabelForm({
         className={cx("input")}
         placeholder={namePlaceholder}
         value={name}
-        // 영문 대소문자, 숫자, 밑줄만 (첫 글자는 영문)
         onChange={(e) => setName(e.target.value)}
-        pattern="[A-Za-z][A-Za-z0-9_]*"
-        title="영문으로 시작하고 영문 대소문자, 숫자, 밑줄만 사용할 수 있습니다"
+        pattern={NAME_PATTERN}
+        title={NAME_RULE}
         maxLength={30}
         required
       />

@@ -10,8 +10,8 @@ export const MENU: MenuItem[] = [
     label: "스킬 관리",
     path: "/skills",
     children: [
-      { label: "시전 타입 관리", path: "/skills/cast_types" },
-      { label: "투사체 경로 관리", path: "/skills/projectile_paths" },
+      { label: "시전 방식 관리", path: "/skills/cast-types" },
+      { label: "투사체 경로 관리", path: "/skills/projectile-paths" },
     ],
   },
   {

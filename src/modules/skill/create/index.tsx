@@ -29,12 +29,13 @@ export default function SkillCreate() {
   return (
     <>
       <Title title="스킬 추가" align="left" />
-      {(error || optionError) && <p className={cx("error")}>{error ?? optionError}</p>}
+      {optionError && <p className={cx("error")}>{optionError}</p>}
       <SkillForm
         initial={createEmptyForm()}
         castTypes={castTypes}
         projectilePaths={projectilePaths}
         submitText="등록"
+        error={error}
         onSubmit={handleSubmit}
       />
     </>
