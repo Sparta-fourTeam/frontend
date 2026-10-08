@@ -12,6 +12,7 @@ export interface SkillSummary {
   name: string;
   castType: string;
   projectilePath: string;
+  statGroups?: StatGroupKey[];
 }
 
 export interface SkillDetail {
