@@ -1,7 +1,7 @@
 import { jsonRequest, throwIfFailed } from "./request";
 import type { StatGroupKey } from "@/constants/skillStats";
 
-const BASE = "/api/skill";
+const BASE = "/api/admin/skill";
 
 export type StatGroupValues = Record<string, number>;
 

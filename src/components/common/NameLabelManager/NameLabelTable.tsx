@@ -4,7 +4,13 @@ import { Fragment, useState } from "react";
 import classnames from "classnames/bind";
 import s from "./NameLabelManager.module.scss";
 import Button from "@/components/common/Button";
-import { isValidName, NAME_PATTERN, NAME_RULE, type NameLabelItem, type NameLabelRequest } from "@/apis/nameLabel";
+import {
+  isValidName,
+  NAME_PATTERN,
+  NAME_RULE,
+  type NameLabelItem,
+  type NameLabelRequest,
+} from "@/apis/nameLabel";
 
 const cx = classnames.bind(s);
 

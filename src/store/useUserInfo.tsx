@@ -2,10 +2,11 @@ import { create } from "zustand";
 import type { LoginType } from "@/apis/auth";
 
 export interface User {
-  userId: number;
-  nickname: string;
   accessToken: string;
+  refreshToken?: string;
   loginType: LoginType;
+  userId?: number;
+  nickname?: string;
 }
 
 interface UserInfo {
