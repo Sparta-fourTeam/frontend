@@ -18,7 +18,7 @@ interface NameLabelTableProps {
   items: NameLabelItem[];
   emptyText: string;
   onUpdate: (id: number, body: NameLabelRequest) => Promise<string | null>;
-  onDelete: (item: NameLabelItem) => Promise<void>;
+  onDelete?: (item: NameLabelItem) => Promise<void>;
 }
 
 export default function NameLabelTable({
@@ -58,6 +58,7 @@ export default function NameLabelTable({
   };
 
   const remove = async (item: NameLabelItem) => {
+    if (!onDelete) return;
     if (locked) return;
     setBusyId(item.id);
     await onDelete(item);
@@ -149,14 +150,16 @@ export default function NameLabelTable({
                         >
                           수정
                         </Button>
-                        <Button
-                          size="small"
-                          variant="danger"
-                          onClick={() => remove(item)}
-                          disabled={locked}
-                        >
-                          {busy ? "삭제 중..." : "삭제"}
-                        </Button>
+                        {onDelete && (
+                          <Button
+                            size="small"
+                            variant="danger"
+                            onClick={() => remove(item)}
+                            disabled={locked}
+                          >
+                            {busy ? "삭제 중..." : "삭제"}
+                          </Button>
+                        )}
                       </>
                     )}
                   </div>

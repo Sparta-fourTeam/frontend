@@ -56,7 +56,10 @@ export const createSkill = async (body: SkillRequest): Promise<SkillDetail> => {
   return response.json();
 };
 
-export const updateSkill = async (id: number | string, body: SkillRequest): Promise<SkillDetail> => {
+export const updateSkill = async (
+  id: number | string,
+  body: SkillRequest,
+): Promise<SkillDetail> => {
   const response = await fetch(`${BASE}/${id}`, jsonRequest("PUT", body));
   await throwIfFailed(response);
   return response.json();

@@ -7,6 +7,7 @@ import s from "./skillList.module.scss";
 import Title from "@/components/common/Title";
 import Button from "@/components/common/Button";
 import StatGroupFilter from "./components/statGroupFilter";
+import LinkTreeIcon from "@/components/icons/LinkTreeIcon";
 import { getSkills, type SkillSummary } from "@/apis/skill";
 import { STAT_GROUPS, type StatGroupKey } from "@/constants/skillStats";
 
@@ -72,6 +73,7 @@ export default function SkillList() {
                 <th>시전 방식</th>
                 <th>투사체 경로</th>
                 <th>기본 수치</th>
+                <th className={cx("colIcon")}>연결</th>
               </tr>
             </thead>
             <tbody>
@@ -93,6 +95,20 @@ export default function SkillList() {
                         </span>
                       ))}
                     </div>
+                  </td>
+                  <td className={cx("colIcon")}>
+                    <button
+                      type="button"
+                      className={cx("iconButton")}
+                      title="카드 연결 관리"
+                      aria-label={`${skill.name} 카드 연결 관리`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        router.push(`/skills/${skill.id}/upgrades`);
+                      }}
+                    >
+                      <LinkTreeIcon />
+                    </button>
                   </td>
                 </tr>
               ))}

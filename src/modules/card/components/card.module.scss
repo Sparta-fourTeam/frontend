@@ -1,0 +1,348 @@
+.card {
+  margin-bottom: 16px;
+  padding: 20px 24px;
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.cardTitle {
+  margin-bottom: 14px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #18181b;
+}
+
+.row {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.fieldLabel {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #52525b;
+}
+
+.hint {
+  margin-left: 4px;
+  font-weight: 400;
+  color: #a1a1aa;
+}
+
+.input {
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid #d4d4d8;
+  border-radius: 8px;
+  background: #ffffff;
+  font: inherit;
+  font-size: 0.95rem;
+
+  &:focus {
+    outline: none;
+    border-color: #18181b;
+  }
+}
+
+.checkField {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.sectionLabel {
+  margin: 18px 0 8px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #3f3f46;
+}
+
+.inheritRow {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+
+  .input {
+    flex: 1;
+  }
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  border-radius: 12px;
+  background: #ffffff;
+  overflow: hidden;
+
+  th,
+  td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f4f4f5;
+    text-align: left;
+    font-size: 0.95rem;
+    vertical-align: middle;
+  }
+
+  th {
+    background: #fafafa;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #71717a;
+  }
+
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+}
+
+.selected td {
+  background: #fafafa;
+}
+
+.colNo {
+  width: 72px;
+}
+
+.colActions {
+  width: 150px;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.code {
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: #f4f4f5;
+  font-family: ui-monospace, monospace;
+  font-size: 0.85rem;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.tag {
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: #f4f4f5;
+  font-size: 0.8rem;
+  color: #52525b;
+}
+
+.muted {
+  color: #a1a1aa;
+}
+
+.empty {
+  padding: 32px;
+  border-radius: 12px;
+  background: #ffffff;
+  text-align: center;
+  color: #a1a1aa;
+}
+
+.error {
+  margin-bottom: 12px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #fef2f2;
+  color: #dc2626;
+  font-size: 0.9rem;
+}
+
+.inlineError {
+  flex: 1;
+  color: #dc2626;
+  font-size: 0.9rem;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 24px 0 12px;
+}
+
+.headerTitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #18181b;
+}
+
+.pageHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.clickable {
+  cursor: pointer;
+
+  &:hover td {
+    background: #fafafa;
+  }
+}
+
+.name {
+  font-weight: 600;
+}
+
+.wide {
+  grid-column: 1 / -1;
+}
+
+.textarea {
+  height: auto;
+  padding: 10px 12px;
+  resize: vertical;
+}
+
+.on {
+  color: #16a34a;
+  font-weight: 600;
+}
+
+.off {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid #e4e4e7;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  color: #3f3f46;
+  cursor: pointer;
+  user-select: none;
+
+  input {
+    margin: 0;
+  }
+
+  &.checked {
+    border-color: #18181b;
+    background: #18181b;
+    color: #ffffff;
+  }
+}
+
+.chip.small {
+  padding: 4px 10px;
+  font-size: 0.8rem;
+}
+
+.effectList {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.effectItem,
+.variantItem {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+  border: 1px solid #e4e4e7;
+  border-radius: 10px;
+  background: #fafafa;
+}
+
+.variantItem {
+  background: #ffffff;
+}
+
+.effectHead {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.effectNo {
+  width: 24px;
+  font-weight: 700;
+  color: #71717a;
+}
+
+.kindInput {
+  flex: 1;
+}
+
+.paramGrid {
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+}
+
+.inheritBox {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+
+  .inheritRow {
+    align-self: stretch;
+    margin-bottom: 0;
+  }
+}
+
+.variantActions {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+}
+
+.section {
+  margin-top: 8px;
+  padding-top: 16px;
+  border-top: 1px solid #f4f4f5;
+}
+
+.grid > .checkField {
+  align-self: end;
+}

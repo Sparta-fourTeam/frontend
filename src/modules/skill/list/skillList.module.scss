@@ -142,3 +142,27 @@
   font-size: 0.8rem;
   color: #52525b;
 }
+
+.colIcon {
+  width: 72px;
+  white-space: nowrap;
+  text-align: center !important;
+}
+
+.iconButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid #e4e4e7;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #52525b;
+  cursor: pointer;
+
+  &:hover {
+    border-color: #18181b;
+    color: #18181b;
+  }
+}

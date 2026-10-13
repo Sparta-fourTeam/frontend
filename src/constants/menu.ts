@@ -18,9 +18,9 @@ export const MENU: MenuItem[] = [
     label: "카드 관리",
     path: "/cards",
     children: [
-      { label: "추가 능력치 관리", path: "/cards/stats" },
-      { label: "효과 관리", path: "/cards/effects" },
-      { label: "변형 관리", path: "/cards/transforms" },
+      { label: "효과 종류 관리", path: "/cards/effect-kinds" },
+      { label: "효과 관리", path: "/cards/skill-forms" },
+      { label: "효과 발동 시점 관리", path: "/cards/effect-triggers" },
     ],
   },
 ];

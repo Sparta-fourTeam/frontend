@@ -9,8 +9,10 @@ export interface NameLabelItem {
 }
 
 export const NAME_PATTERN = "[A-Za-z][A-Za-z0-9_]*";
-export const NAME_RULE = "이름은 영문으로 시작하고 영문, 숫자, 밑줄만 사용할 수 있습니다.";
-export const isValidName = (name: string) => new RegExp(`^${NAME_PATTERN}$`).test(name);
+export const NAME_RULE =
+  "이름은 영문으로 시작하고 영문, 숫자, 밑줄만 사용할 수 있습니다.";
+export const isValidName = (name: string) =>
+  new RegExp(`^${NAME_PATTERN}$`).test(name);
 
 export interface NameLabelRequest {
   name: string;
@@ -21,10 +23,13 @@ export interface NameLabelApi {
   getAll: () => Promise<NameLabelItem[]>;
   create: (body: NameLabelRequest) => Promise<NameLabelItem>;
   update: (id: number, body: NameLabelRequest) => Promise<NameLabelItem>;
-  remove: (id: number) => Promise<void>;
+  remove?: (id: number) => Promise<void>;
 }
 
-export const createNameLabelApi = (basePath: string): NameLabelApi => ({
+export const createNameLabelApi = (
+  basePath: string,
+  { removable = true }: { removable?: boolean } = {},
+): NameLabelApi => ({
   getAll: async () => {
     const response = await fetch(basePath);
     await throwIfFailed(response);
@@ -40,8 +45,10 @@ export const createNameLabelApi = (basePath: string): NameLabelApi => ({
     await throwIfFailed(response);
     return response.json();
   },
-  remove: async (id) => {
-    const response = await fetch(`${basePath}/${id}`, { method: "DELETE" });
-    await throwIfFailed(response);
-  },
+  remove: removable
+    ? async (id) => {
+        const response = await fetch(`${basePath}/${id}`, { method: "DELETE" });
+        await throwIfFailed(response);
+      }
+    : undefined,
 });
