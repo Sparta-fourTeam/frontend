@@ -25,6 +25,7 @@ export interface SkillDetail {
   childOnly: boolean;
   baseStats?: SkillBaseStats;
   unlockLevel: number;
+  progressionId?: string;
 }
 
 export interface SkillRequest {
@@ -36,6 +37,7 @@ export interface SkillRequest {
   childOnly: boolean;
   baseStats: SkillBaseStats;
   unlockLevel?: number;
+  progressionId?: string;
 }
 
 export const getSkills = async (): Promise<SkillSummary[]> => {

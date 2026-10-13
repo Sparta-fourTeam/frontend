@@ -14,6 +14,7 @@ export interface SkillFormState {
   maxLevel: string;
   childOnly: boolean;
   unlockLevel: string;
+  progressionId: string;
   groups: Record<StatGroupKey, StatGroupState>;
 }
 
@@ -33,6 +34,7 @@ export const createEmptyForm = (): SkillFormState => ({
   maxLevel: "1",
   childOnly: false,
   unlockLevel: "1",
+  progressionId: "",
   groups: emptyGroups(),
 });
 
@@ -55,6 +57,7 @@ export const detailToForm = (skill: SkillDetail): SkillFormState => {
     maxLevel: String(skill.maxLevel),
     childOnly: skill.childOnly,
     unlockLevel: String(skill.unlockLevel ?? 1),
+    progressionId: skill.progressionId ?? "",
     groups,
   };
 };
@@ -87,6 +90,8 @@ export const formToRequest = (form: SkillFormState): SkillRequest => {
   if (desc !== "") request.desc = desc;
   const unlockLevel = toNumber(form.unlockLevel);
   if (unlockLevel !== null) request.unlockLevel = unlockLevel;
+  const progressionId = form.progressionId.trim();
+  if (progressionId !== "") request.progressionId = progressionId;
 
   return request;
 };

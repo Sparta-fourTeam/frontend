@@ -157,6 +157,16 @@ export default function SkillForm({
             />
           </label>
 
+          <label className={cx("field")}>
+            <span className={cx("fieldLabel")}>영구 강화 키 (progressionId)</span>
+            <input
+              className={cx("input")}
+              value={form.progressionId}
+              onChange={(e) => set("progressionId", e.target.value)}
+              placeholder="비워두면 영구 레벨 0"
+            />
+          </label>
+
           <label className={cx("checkField")}>
             <input
               type="checkbox"
