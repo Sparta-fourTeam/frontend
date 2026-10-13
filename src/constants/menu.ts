@@ -12,15 +12,15 @@ export const MENU: MenuItem[] = [
     children: [
       { label: "시전 방식 관리", path: "/skills/cast-types" },
       { label: "투사체 경로 관리", path: "/skills/projectile-paths" },
-    ],
-  },
-  {
-    label: "카드 관리",
-    path: "/cards",
-    children: [
-      { label: "효과 종류 관리", path: "/cards/effect-kinds" },
-      { label: "효과 관리", path: "/cards/skill-forms" },
-      { label: "효과 발동 시점 관리", path: "/cards/effect-triggers" },
+      {
+        label: "카드 관리",
+        path: "/cards",
+        children: [
+          { label: "효과 종류 관리", path: "/cards/effect-kinds" },
+          { label: "효과 관리", path: "/cards/skill-forms" },
+          { label: "효과 발동 시점 관리", path: "/cards/effect-triggers" },
+        ],
+      },
     ],
   },
 ];

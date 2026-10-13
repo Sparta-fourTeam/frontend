@@ -1,4 +1,4 @@
-import { jsonRequest, throwIfFailed } from "./request";
+import { apiFetch, jsonRequest, throwIfFailed } from "./request";
 
 export interface NamedRef {
   id: number;
@@ -121,7 +121,7 @@ export interface CardRequest {
 const CARDS = "/api/admin/cards";
 
 const request = async <T>(path: string, init?: RequestInit): Promise<T> => {
-  const response = await fetch(path, init);
+  const response = await apiFetch(path, init);
   await throwIfFailed(response);
   return (response.status === 204 ? undefined : await response.json()) as T;
 };

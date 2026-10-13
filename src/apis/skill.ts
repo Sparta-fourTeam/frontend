@@ -1,4 +1,4 @@
-import { jsonRequest, throwIfFailed } from "./request";
+import { apiFetch, jsonRequest, throwIfFailed } from "./request";
 import type { StatGroupKey } from "@/constants/skillStats";
 
 const BASE = "/api/admin/skill";
@@ -41,19 +41,19 @@ export interface SkillRequest {
 }
 
 export const getSkills = async (): Promise<SkillSummary[]> => {
-  const response = await fetch(`${BASE}/list`);
+  const response = await apiFetch(`${BASE}/list`);
   await throwIfFailed(response);
   return response.json();
 };
 
 export const getSkill = async (id: number | string): Promise<SkillDetail> => {
-  const response = await fetch(`${BASE}/${id}`);
+  const response = await apiFetch(`${BASE}/${id}`);
   await throwIfFailed(response);
   return response.json();
 };
 
 export const createSkill = async (body: SkillRequest): Promise<SkillDetail> => {
-  const response = await fetch(BASE, jsonRequest("POST", body));
+  const response = await apiFetch(BASE, jsonRequest("POST", body));
   await throwIfFailed(response);
   return response.json();
 };
@@ -62,12 +62,12 @@ export const updateSkill = async (
   id: number | string,
   body: SkillRequest,
 ): Promise<SkillDetail> => {
-  const response = await fetch(`${BASE}/${id}`, jsonRequest("PUT", body));
+  const response = await apiFetch(`${BASE}/${id}`, jsonRequest("PUT", body));
   await throwIfFailed(response);
   return response.json();
 };
 
 export const deleteSkill = async (id: number | string): Promise<void> => {
-  const response = await fetch(`${BASE}/${id}`, { method: "DELETE" });
+  const response = await apiFetch(`${BASE}/${id}`, { method: "DELETE" });
   await throwIfFailed(response);
 };

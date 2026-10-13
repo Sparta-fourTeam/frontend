@@ -1,4 +1,4 @@
-import { jsonRequest, throwIfFailed } from "./request";
+import { apiFetch, jsonRequest, throwIfFailed } from "./request";
 
 // "이름(name) + 표시 이름(label)" 형태의 공통 API
 export interface NameLabelItem {
@@ -31,23 +31,23 @@ export const createNameLabelApi = (
   { removable = true }: { removable?: boolean } = {},
 ): NameLabelApi => ({
   getAll: async () => {
-    const response = await fetch(basePath);
+    const response = await apiFetch(basePath);
     await throwIfFailed(response);
     return response.json();
   },
   create: async (body) => {
-    const response = await fetch(basePath, jsonRequest("POST", body));
+    const response = await apiFetch(basePath, jsonRequest("POST", body));
     await throwIfFailed(response);
     return response.json();
   },
   update: async (id, body) => {
-    const response = await fetch(`${basePath}/${id}`, jsonRequest("PUT", body));
+    const response = await apiFetch(`${basePath}/${id}`, jsonRequest("PUT", body));
     await throwIfFailed(response);
     return response.json();
   },
   remove: removable
     ? async (id) => {
-        const response = await fetch(`${basePath}/${id}`, { method: "DELETE" });
+        const response = await apiFetch(`${basePath}/${id}`, { method: "DELETE" });
         await throwIfFailed(response);
       }
     : undefined,
