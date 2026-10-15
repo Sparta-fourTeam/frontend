@@ -8,7 +8,6 @@ import Title from "@/components/common/Title";
 import Button from "@/components/common/Button";
 import StatGroupFilter from "./components/statGroupFilter";
 import LinkTreeIcon from "@/components/icons/LinkTreeIcon";
-import JsonImportModal from "./components/jsonImportModal";
 import { getSkills, type SkillSummary } from "@/apis/skill";
 import { STAT_GROUPS, type StatGroupKey } from "@/constants/skillStats";
 
@@ -20,7 +19,6 @@ export default function SkillList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<StatGroupKey[]>([]);
-  const [importing, setImporting] = useState(false);
 
   const filtered = skills.filter((skill) =>
     filter.every((key) => skill.statGroups?.includes(key)),
@@ -33,7 +31,10 @@ export default function SkillList() {
         if (!ignore) setSkills(data);
       })
       .catch((e) => {
-        if (!ignore) setError(e instanceof Error ? e.message : "목록을 불러오지 못했습니다.");
+        if (!ignore)
+          setError(
+            e instanceof Error ? e.message : "목록을 불러오지 못했습니다.",
+          );
       })
       .finally(() => {
         if (!ignore) setLoading(false);
@@ -46,11 +47,12 @@ export default function SkillList() {
   return (
     <>
       <div className={cx("header")}>
-        <Title title="스킬 관리" subtitle="스킬을 선택하면 상세 화면으로 이동합니다" align="left" />
+        <Title
+          title="스킬 관리"
+          subtitle="스킬을 선택하면 상세 화면으로 이동합니다"
+          align="left"
+        />
         <div className={cx("headerActions")}>
-          <Button variant="outline" onClick={() => setImporting(true)}>
-            JSON 데이터 입력
-          </Button>
           <Button onClick={() => router.push("/skills/new")}>스킬 추가</Button>
         </div>
       </div>
@@ -100,7 +102,9 @@ export default function SkillList() {
                   </td>
                   <td>
                     <div className={cx("tags")}>
-                      {STAT_GROUPS.filter((g) => skill.statGroups?.includes(g.key)).map((g) => (
+                      {STAT_GROUPS.filter((g) =>
+                        skill.statGroups?.includes(g.key),
+                      ).map((g) => (
                         <span key={g.key} className={cx("tag")}>
                           {g.label}
                         </span>
@@ -126,9 +130,6 @@ export default function SkillList() {
             </tbody>
           </table>
         </>
-      )}
-      {importing && (
-        <JsonImportModal onClose={() => setImporting(false)} onImported={() => router.refresh()} />
       )}
     </>
   );
