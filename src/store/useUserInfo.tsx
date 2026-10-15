@@ -4,7 +4,6 @@ import type { LoginType } from "@/apis/auth";
 
 export interface User {
   accessToken: string;
-  refreshToken?: string;
   loginType: LoginType;
   userId?: number;
   nickname?: string;

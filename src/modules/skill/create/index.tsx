@@ -14,7 +14,7 @@ const cx = classnames.bind(s);
 
 export default function SkillCreate() {
   const router = useRouter();
-  const { castTypes, projectilePaths, error: optionError } = useSkillOptions();
+  const { castTypes, projectilePaths, elements, error: optionError } = useSkillOptions();
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (body: SkillRequest) => {
@@ -34,6 +34,7 @@ export default function SkillCreate() {
         initial={createEmptyForm()}
         castTypes={castTypes}
         projectilePaths={projectilePaths}
+        elements={elements}
         submitText="등록"
         error={error}
         onSubmit={handleSubmit}

@@ -12,6 +12,7 @@ export const MENU: MenuItem[] = [
     children: [
       { label: "시전 방식 관리", path: "/skills/cast-types" },
       { label: "투사체 경로 관리", path: "/skills/projectile-paths" },
+      { label: "속성 관리", path: "/skills/elements" },
       {
         label: "카드 관리",
         path: "/cards",

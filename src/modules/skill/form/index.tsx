@@ -4,9 +4,8 @@ import { useState } from "react";
 import classnames from "classnames/bind";
 import s from "./skillForm.module.scss";
 import Button from "@/components/common/Button";
-import StatGroupSection from "./components/statGroupSection";
-import { STAT_GROUPS } from "@/constants/skillStats";
-import { findEmptyGroups, formToRequest, type SkillFormState } from "./formState";
+import BaseStatsEditor from "./components/baseStatsEditor";
+import { formToRequest, validateForm, type SkillFormState } from "./formState";
 import type { SkillRequest } from "@/apis/skill";
 import type { NameLabelItem } from "@/apis/nameLabel";
 
@@ -16,18 +15,21 @@ interface SkillFormProps {
   initial: SkillFormState;
   castTypes: NameLabelItem[];
   projectilePaths: NameLabelItem[];
+  elements: NameLabelItem[];
   submitText: string;
   error?: string | null;
   onSubmit: (body: SkillRequest) => Promise<void>;
   onDelete?: () => Promise<void>;
 }
 
-const preventWheel = (e: React.WheelEvent<HTMLInputElement>) => e.currentTarget.blur();
+const preventWheel = (e: React.WheelEvent<HTMLInputElement>) =>
+  e.currentTarget.blur();
 
 export default function SkillForm({
   initial,
   castTypes,
   projectilePaths,
+  elements,
   submitText,
   error,
   onSubmit,
@@ -46,11 +48,9 @@ export default function SkillForm({
     e.preventDefault();
     if (busy) return;
 
-    const emptyGroups = findEmptyGroups(form);
-    if (emptyGroups.length > 0) {
-      setFormError(
-        `${emptyGroups.join(", ")} 그룹에 값을 하나 이상 입력하거나 체크를 해제하세요.`,
-      );
+    const invalid = validateForm(form);
+    if (invalid) {
+      setFormError(invalid);
       return;
     }
 
@@ -130,6 +130,22 @@ export default function SkillForm({
           </label>
 
           <label className={cx("field")}>
+            <span className={cx("fieldLabel")}>속성</span>
+            <select
+              className={cx("input")}
+              value={form.elementId}
+              onChange={(e) => set("elementId", e.target.value)}
+            >
+              <option value="">없음</option>
+              {elements.map((el) => (
+                <option key={el.id} value={el.id}>
+                  {el.label} ({el.name})
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className={cx("field")}>
             <span className={cx("fieldLabel")}>최대 레벨 *</span>
             <input
               type="number"
@@ -158,7 +174,9 @@ export default function SkillForm({
           </label>
 
           <label className={cx("field")}>
-            <span className={cx("fieldLabel")}>영구 강화 키 (progressionId)</span>
+            <span className={cx("fieldLabel")}>
+              영구 강화 키 (progressionId)
+            </span>
             <input
               className={cx("input")}
               value={form.progressionId}
@@ -181,30 +199,23 @@ export default function SkillForm({
       <section className={cx("card")}>
         <h2 className={cx("cardTitle")}>기본 수치</h2>
         <p className={cx("cardDesc")}>
-          사용하는 그룹만 체크하세요. 체크 안 한 그룹과 비워둔 칸은 요청에서
-          빠집니다.
+          JSON으로 입력하거나 오른쪽 표에서 값을 고칠 수 있습니다. 두 쪽은 서로
+          연동됩니다.
         </p>
-        <div className={cx("groups")}>
-          {STAT_GROUPS.map((group) => (
-            <StatGroupSection
-              key={group.key}
-              group={group}
-              state={form.groups[group.key]}
-              onChange={(state) =>
-                setForm((prev) => ({
-                  ...prev,
-                  groups: { ...prev.groups, [group.key]: state },
-                }))
-              }
-            />
-          ))}
-        </div>
+        <BaseStatsEditor
+          text={form.statsText}
+          onChange={(statsText) => setForm((prev) => ({ ...prev, statsText }))}
+        />
       </section>
 
       <div className={cx("footer")}>
         {message && <p className={cx("error")}>{message}</p>}
         {onDelete && (
-          <Button variant="danger" onClick={handleDelete} disabled={busy !== null}>
+          <Button
+            variant="danger"
+            onClick={handleDelete}
+            disabled={busy !== null}
+          >
             {busy === "delete" ? "삭제 중..." : "삭제"}
           </Button>
         )}

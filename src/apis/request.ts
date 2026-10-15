@@ -20,15 +20,11 @@ const withToken = (init?: RequestInit): RequestInit => {
 };
 
 const refreshTokens = async () => {
+  const response = await fetch("/api/auth/web/refresh", { method: "POST" });
   const { user, setUser } = useUserInfo.getState();
-  if (!user?.refreshToken) return false;
-  const response = await fetch(
-    "/api/auth/refresh",
-    jsonRequest("POST", { refreshToken: user.refreshToken }),
-  );
-  if (!response.ok) return false;
-  const tokens: { accessToken: string; refreshToken: string } = await response.json();
-  setUser({ ...user, ...tokens });
+  if (!response.ok || !user) return false;
+  const { accessToken }: { accessToken: string } = await response.json();
+  setUser({ ...user, accessToken });
   return true;
 };
 

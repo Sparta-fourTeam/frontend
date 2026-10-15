@@ -20,8 +20,8 @@ export default function SignInForm() {
     setLoading(true);
     setError(null);
     try {
-      const tokens = await socialLogin(idToken);
-      setUser({ ...tokens, loginType: "GOOGLE" });
+      const { accessToken } = await socialLogin(idToken);
+      setUser({ accessToken, loginType: "GOOGLE" });
       router.push("/skills");
     } catch (e) {
       setError(e instanceof Error ? e.message : "구글 로그인에 실패했습니다.");

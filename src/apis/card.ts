@@ -187,3 +187,14 @@ export const createExclusion = (cardId: number, body: CardExclusionRequest) =>
 export const deleteExclusion = (id: number) =>
   remove(`/api/admin/card-exclusions/${id}`);
 
+export interface CardImportResult {
+  skillCount: number;
+  cardCount: number;
+  effectCount: number;
+  variantCount: number;
+  requiredCardCountCount: number;
+  exclusionCount: number;
+}
+
+export const importCards = (skills: unknown[]) =>
+  request<CardImportResult>(`${CARDS}/import`, jsonRequest("POST", skills));

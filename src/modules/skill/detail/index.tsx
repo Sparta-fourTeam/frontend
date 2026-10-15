@@ -24,7 +24,7 @@ interface SkillDetailProps {
 
 export default function SkillDetail({ skillId }: SkillDetailProps) {
   const router = useRouter();
-  const { castTypes, projectilePaths, error: optionError } = useSkillOptions();
+  const { castTypes, projectilePaths, elements, error: optionError } = useSkillOptions();
   const [skill, setSkill] = useState<SkillDetailData | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -74,6 +74,7 @@ export default function SkillDetail({ skillId }: SkillDetailProps) {
           initial={detailToForm(skill)}
           castTypes={castTypes}
           projectilePaths={projectilePaths}
+          elements={elements}
           submitText="저장"
           error={error}
           onSubmit={handleSubmit}
