@@ -1,0 +1,173 @@
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  border-radius: 12px;
+  background: #ffffff;
+  overflow: hidden;
+
+  th,
+  td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #f4f4f5;
+    text-align: left;
+    font-size: 0.95rem;
+  }
+
+  th {
+    background: #fafafa;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #71717a;
+  }
+
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+}
+
+.row {
+  cursor: pointer;
+
+  &:hover {
+    background: #fafafa;
+  }
+}
+
+.colNo {
+  width: 64px;
+}
+
+.name {
+  font-weight: 600;
+}
+
+.muted {
+  color: #a1a1aa;
+}
+
+.empty {
+  padding: 40px;
+  border-radius: 12px;
+  background: #ffffff;
+  text-align: center;
+  color: #a1a1aa;
+}
+
+.error {
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: #fef2f2;
+  color: #dc2626;
+  font-size: 0.9rem;
+}
+
+.filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.filterTitle {
+  margin-right: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #52525b;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid #e4e4e7;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  color: #3f3f46;
+  cursor: pointer;
+  user-select: none;
+
+  input {
+    margin: 0;
+  }
+
+  &.checked {
+    border-color: #18181b;
+    background: #18181b;
+    color: #ffffff;
+  }
+}
+
+.reset {
+  margin-left: auto;
+  border: none;
+  background: none;
+  font-size: 0.85rem;
+  color: #71717a;
+  cursor: pointer;
+
+  &:hover {
+    color: #18181b;
+  }
+}
+
+.count {
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+  color: #71717a;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.tag {
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: #f4f4f5;
+  font-size: 0.8rem;
+  color: #52525b;
+}
+
+.colIcon {
+  width: 72px;
+  white-space: nowrap;
+  text-align: center !important;
+}
+
+.iconButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid #e4e4e7;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #52525b;
+  cursor: pointer;
+
+  &:hover {
+    border-color: #18181b;
+    color: #18181b;
+  }
+}
+
+.headerActions {
+  display: flex;
+  gap: 8px;
+}
