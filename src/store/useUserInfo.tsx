@@ -1,11 +1,12 @@
 import { create } from "zustand";
+import { createJSONStorage, persist } from "zustand/middleware";
 import type { LoginType } from "@/apis/auth";
 
 export interface User {
-  userId: number;
-  nickname: string;
   accessToken: string;
   loginType: LoginType;
+  userId?: number;
+  nickname?: string;
 }
 
 interface UserInfo {
@@ -15,13 +16,17 @@ interface UserInfo {
   clearUser: () => void;
 }
 
-export const useUserInfo = create<UserInfo>()((set) => ({
-  user: null,
-  isAuthenticated: false,
-
-  // 로그인 성공 시 사용자 정보 저장
-  setUser: (user) => set({ user, isAuthenticated: true }),
-
-  // 로그아웃 시 사용자 정보 초기화
-  clearUser: () => set({ user: null, isAuthenticated: false }),
-}));
+export const useUserInfo = create<UserInfo>()(
+  persist(
+    (set) => ({
+      user: null,
+      isAuthenticated: false,
+      setUser: (user) => set({ user, isAuthenticated: true }),
+      clearUser: () => set({ user: null, isAuthenticated: false }),
+    }),
+    {
+      name: "user-info",
+      storage: createJSONStorage(() => localStorage),
+    },
+  ),
+);

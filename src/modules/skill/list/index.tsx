@@ -7,6 +7,8 @@ import s from "./skillList.module.scss";
 import Title from "@/components/common/Title";
 import Button from "@/components/common/Button";
 import StatGroupFilter from "./components/statGroupFilter";
+import LinkTreeIcon from "@/components/icons/LinkTreeIcon";
+import JsonImportModal from "./components/jsonImportModal";
 import { getSkills, type SkillSummary } from "@/apis/skill";
 import { STAT_GROUPS, type StatGroupKey } from "@/constants/skillStats";
 
@@ -18,6 +20,7 @@ export default function SkillList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<StatGroupKey[]>([]);
+  const [importing, setImporting] = useState(false);
 
   const filtered = skills.filter((skill) =>
     filter.every((key) => skill.statGroups?.includes(key)),
@@ -44,7 +47,12 @@ export default function SkillList() {
     <>
       <div className={cx("header")}>
         <Title title="스킬 관리" subtitle="스킬을 선택하면 상세 화면으로 이동합니다" align="left" />
-        <Button onClick={() => router.push("/skills/new")}>스킬 추가</Button>
+        <div className={cx("headerActions")}>
+          <Button variant="outline" onClick={() => setImporting(true)}>
+            JSON 데이터 입력
+          </Button>
+          <Button onClick={() => router.push("/skills/new")}>스킬 추가</Button>
+        </div>
       </div>
 
       {error && <p className={cx("error")}>{error}</p>}
@@ -71,7 +79,9 @@ export default function SkillList() {
                 <th>이름</th>
                 <th>시전 방식</th>
                 <th>투사체 경로</th>
+                <th>속성</th>
                 <th>기본 수치</th>
+                <th className={cx("colIcon")}>연결</th>
               </tr>
             </thead>
             <tbody>
@@ -85,6 +95,9 @@ export default function SkillList() {
                   <td className={cx("name")}>{skill.name}</td>
                   <td>{skill.castType}</td>
                   <td>{skill.projectilePath}</td>
+                  <td className={cx(!skill.element && "muted")}>
+                    {skill.element ?? "-"}
+                  </td>
                   <td>
                     <div className={cx("tags")}>
                       {STAT_GROUPS.filter((g) => skill.statGroups?.includes(g.key)).map((g) => (
@@ -94,11 +107,28 @@ export default function SkillList() {
                       ))}
                     </div>
                   </td>
+                  <td className={cx("colIcon")}>
+                    <button
+                      type="button"
+                      className={cx("iconButton")}
+                      title="카드 연결 관리"
+                      aria-label={`${skill.name} 카드 연결 관리`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        router.push(`/skills/${skill.id}/upgrades`);
+                      }}
+                    >
+                      <LinkTreeIcon />
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </>
+      )}
+      {importing && (
+        <JsonImportModal onClose={() => setImporting(false)} onImported={() => router.refresh()} />
       )}
     </>
   );

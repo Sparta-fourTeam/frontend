@@ -1,98 +1,70 @@
-import { STAT_GROUPS, type StatGroupKey } from "@/constants/skillStats";
-import type { SkillBaseStats, SkillDetail, SkillRequest, StatGroupValues } from "@/apis/skill";
-
-export interface StatGroupState {
-  enabled: boolean;
-  values: Record<string, string>;
-}
+import type { SkillDetail, SkillRequest } from "@/apis/skill";
+import { parseStats, stringifyStats } from "./baseStats";
 
 export interface SkillFormState {
   name: string;
   desc: string;
   castTypeId: string;
   projectilePathId: string;
+  elementId: string;
   maxLevel: string;
   childOnly: boolean;
   unlockLevel: string;
-  groups: Record<StatGroupKey, StatGroupState>;
+  progressionId: string;
+  statsText: string;
 }
-
-const emptyGroups = () =>
-  Object.fromEntries(
-    STAT_GROUPS.map((g) => [
-      g.key,
-      { enabled: false, values: Object.fromEntries(g.fields.map((f) => [f.key, ""])) },
-    ]),
-  ) as Record<StatGroupKey, StatGroupState>;
 
 export const createEmptyForm = (): SkillFormState => ({
   name: "",
   desc: "",
   castTypeId: "",
   projectilePathId: "",
+  elementId: "",
   maxLevel: "1",
   childOnly: false,
   unlockLevel: "1",
-  groups: emptyGroups(),
+  progressionId: "",
+  statsText: "",
 });
 
-export const detailToForm = (skill: SkillDetail): SkillFormState => {
-  const groups = emptyGroups();
-  for (const group of STAT_GROUPS) {
-    const data = skill.baseStats?.[group.key] as Record<string, number | null> | undefined;
-    if (!data) continue;
-    groups[group.key].enabled = true;
-    for (const field of group.fields) {
-      const value = data[field.key];
-      groups[group.key].values[field.key] = value == null ? "" : String(value);
-    }
-  }
-  return {
-    name: skill.name,
-    desc: skill.desc ?? "",
-    castTypeId: String(skill.castType.id),
-    projectilePathId: String(skill.projectilePath.id),
-    maxLevel: String(skill.maxLevel),
-    childOnly: skill.childOnly,
-    unlockLevel: String(skill.unlockLevel ?? 1),
-    groups,
-  };
+export const detailToForm = (skill: SkillDetail): SkillFormState => ({
+  name: skill.name,
+  desc: skill.desc ?? "",
+  castTypeId: String(skill.castType.id),
+  projectilePathId: String(skill.projectilePath.id),
+  elementId: skill.element ? String(skill.element.id) : "",
+  maxLevel: String(skill.maxLevel),
+  childOnly: skill.childOnly,
+  unlockLevel: String(skill.unlockLevel ?? 1),
+  progressionId: skill.progressionId ?? "",
+  statsText: stringifyStats(skill.baseStats ?? {}),
+});
+
+const toNumber = (value: string) =>
+  value.trim() === "" ? null : Number(value);
+
+export const validateForm = (form: SkillFormState): string | null => {
+  const stats = parseStats(form.statsText);
+  return stats.ok ? null : `기본 수치를 확인하세요. ${stats.error}`;
 };
 
-const toNumber = (value: string) => (value.trim() === "" ? null : Number(value));
-
-// 체크 안 한 그룹, 비워둔 칸은 요청에서 빠짐
 export const formToRequest = (form: SkillFormState): SkillRequest => {
-  const baseStats: SkillBaseStats = {};
-  for (const group of STAT_GROUPS) {
-    const state = form.groups[group.key];
-    if (!state.enabled) continue;
-    const values: StatGroupValues = {};
-    for (const field of group.fields) {
-      const value = toNumber(state.values[field.key]);
-      if (value !== null) values[field.key] = value;
-    }
-    baseStats[group.key] = values;
-  }
-
+  const stats = parseStats(form.statsText);
   const request: SkillRequest = {
     name: form.name.trim(),
     castTypeId: Number(form.castTypeId),
     projectilePathId: Number(form.projectilePathId),
     maxLevel: Number(form.maxLevel),
     childOnly: form.childOnly,
-    baseStats,
+    baseStats: stats.ok ? stats.stats : {},
   };
   const desc = form.desc.trim();
   if (desc !== "") request.desc = desc;
+  if (form.elementId !== "") request.elementId = Number(form.elementId);
   const unlockLevel = toNumber(form.unlockLevel);
   if (unlockLevel !== null) request.unlockLevel = unlockLevel;
+  const progressionId = form.progressionId.trim();
+  if (progressionId !== "") request.progressionId = progressionId;
 
   return request;
 };
-
-export const findEmptyGroups = (form: SkillFormState) =>
-  STAT_GROUPS.filter((group) => {
-    const state = form.groups[group.key];
-    return state.enabled && group.fields.every((f) => state.values[f.key].trim() === "");
-  }).map((group) => group.label);

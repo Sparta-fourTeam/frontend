@@ -1,0 +1,223 @@
+.editor {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+
+  @media (max-width: 960px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.jsonPane {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.json {
+  min-height: 420px;
+  padding: 12px;
+  border: 1px solid #d4d4d8;
+  border-radius: 8px;
+  background: #fafafa;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.85rem;
+  line-height: 1.55;
+  resize: vertical;
+  tab-size: 2;
+
+  &:focus {
+    outline: none;
+    border-color: #18181b;
+  }
+
+  &.invalid {
+    border-color: #dc2626;
+  }
+}
+
+.jsonFooter {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.jsonActions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.status {
+  margin-left: auto;
+  padding-top: 6px;
+  font-size: 0.85rem;
+  color: #71717a;
+  text-align: right;
+  word-break: break-all;
+
+  &.error {
+    color: #dc2626;
+  }
+}
+
+.previewPane {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 420px;
+  padding: 12px;
+  border: 1px solid #e4e4e7;
+  border-radius: 8px;
+}
+
+.placeholder {
+  margin: auto;
+  font-size: 0.9rem;
+  color: #a1a1aa;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 0.875rem;
+
+  th {
+    padding: 8px;
+    border-bottom: 1px solid #d4d4d8;
+    background: #fafafa;
+    font-weight: 600;
+    color: #52525b;
+    text-align: left;
+  }
+
+  td {
+    padding: 2px;
+    border-bottom: 1px solid #f4f4f5;
+    vertical-align: middle;
+  }
+}
+
+.colKey {
+  width: 26%;
+}
+
+.colValue {
+  width: 18%;
+}
+
+.colAction {
+  width: 36px;
+  text-align: center;
+}
+
+.cell {
+  width: 100%;
+  height: 32px;
+  padding: 0 6px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  font-family: ui-monospace, monospace;
+  font-size: 0.85rem;
+
+  &:hover {
+    background: #f4f4f5;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: #18181b;
+    background: #ffffff;
+  }
+
+  &.numeric {
+    text-align: right;
+  }
+}
+
+.addCell {
+  border-color: #e4e4e7;
+  background: #ffffff;
+}
+
+.addRow td {
+  padding-top: 8px;
+  border-bottom: none;
+}
+
+.desc {
+  padding: 2px 8px !important;
+  font-size: 0.8rem;
+  color: #71717a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sep {
+  margin: 0 4px;
+  color: #d4d4d8;
+}
+
+.newTag {
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: #eff6ff;
+  font-size: 0.72rem;
+  font-style: normal;
+  font-weight: 600;
+  color: #2563eb;
+}
+
+.warning {
+  margin-left: 6px;
+  font-size: 0.75rem;
+  color: #d97706;
+}
+
+.muted {
+  padding: 0 6px;
+  font-size: 0.8rem;
+  color: #a1a1aa;
+}
+
+.emptyRow {
+  padding: 24px 8px !important;
+  font-size: 0.85rem;
+  color: #a1a1aa;
+  text-align: center;
+}
+
+.remove {
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  font-size: 1rem;
+  line-height: 1;
+  color: #a1a1aa;
+  cursor: pointer;
+
+  &:hover {
+    background: #fee2e2;
+    color: #dc2626;
+  }
+}
+
+.tableError {
+  font-size: 0.8rem;
+  color: #dc2626;
+}
+
+.groupCell {
+  vertical-align: top !important;
+  border-right: 1px solid #f4f4f5;
+}
+
+.groupStart td {
+  border-top: 1px solid #d4d4d8;
+}

@@ -6,7 +6,11 @@ import s from "./NameLabelManager.module.scss";
 import Title from "@/components/common/Title";
 import NameLabelForm from "./NameLabelForm";
 import NameLabelTable from "./NameLabelTable";
-import type { NameLabelApi, NameLabelItem, NameLabelRequest } from "@/apis/nameLabel";
+import type {
+  NameLabelApi,
+  NameLabelItem,
+  NameLabelRequest,
+} from "@/apis/nameLabel";
 
 const cx = classnames.bind(s);
 
@@ -41,7 +45,10 @@ export default function NameLabelManager({
         if (!ignore) setItems(data);
       })
       .catch((e) => {
-        if (!ignore) setError(e instanceof Error ? e.message : "목록을 불러오지 못했습니다.");
+        if (!ignore)
+          setError(
+            e instanceof Error ? e.message : "목록을 불러오지 못했습니다.",
+          );
       })
       .finally(() => {
         if (!ignore) setLoading(false);
@@ -63,7 +70,9 @@ export default function NameLabelManager({
     try {
       setItems(await api.getAll());
     } catch {
-      setError("저장은 됐지만 목록을 새로고침하지 못했습니다. 페이지를 새로고침해 주세요.");
+      setError(
+        "저장은 됐지만 목록을 새로고침하지 못했습니다. 페이지를 새로고침해 주세요.",
+      );
     }
     return null;
   };
@@ -74,13 +83,17 @@ export default function NameLabelManager({
     return message === null;
   };
 
-  const handleUpdate = (id: number, body: NameLabelRequest) => run(() => api.update(id, body));
+  const handleUpdate = (id: number, body: NameLabelRequest) =>
+    run(() => api.update(id, body));
 
-  const handleDelete = async (item: NameLabelItem) => {
-    if (!confirm(`'${item.label}' ${itemName}을(를) 삭제할까요?`)) return;
-    const message = await run(() => api.remove(item.id));
-    if (message) setError(message);
-  };
+  const remove = api.remove;
+  const handleDelete = remove
+    ? async (item: NameLabelItem) => {
+        if (!confirm(`'${item.label}' ${itemName}을(를) 삭제할까요?`)) return;
+        const message = await run(() => remove(item.id));
+        if (message) setError(message);
+      }
+    : undefined;
 
   return (
     <>
