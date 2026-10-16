@@ -6,6 +6,7 @@ import s from "../components/upgrade.module.scss";
 import Button from "@/components/common/Button";
 import UpgradeEffectEditor from "./components/upgradeEffectEditor";
 import { useEffectKinds } from "./useEffectKinds";
+import { materialItemOptions, useMaterialItems } from "./useMaterialItems";
 import {
   levelCount,
   toFormState,
@@ -56,6 +57,7 @@ export default function UpgradeForm({
 }: UpgradeFormProps) {
   const isCreate = !upgrade;
   const kindOptions = useEffectKinds();
+  const material = useMaterialItems();
   const [form, setForm] = useState(() => toFormState(upgrade));
   const [busy, setBusy] = useState<"submit" | "delete" | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
@@ -140,15 +142,30 @@ export default function UpgradeForm({
           비용 · 재료
           <span className={cx("hint")}>0 이상의 정수 · 비우면 없음</span>
         </h2>
+        {material.error && <p className={cx("error")}>{material.error}</p>}
         <div className={cx("grid")}>
           <label className={cx("field")}>
-            <span className={cx("fieldLabel")}>재료 아이템 ID</span>
-            <input
+            <span className={cx("fieldLabel")}>
+              재료 아이템
+              <span className={cx("hint")}>장비 재료만 표시</span>
+            </span>
+            <select
               className={cx("input")}
               value={form.materialItemId}
               onChange={(e) => set("materialItemId", e.target.value)}
-              placeholder="비우면 없음"
-            />
+            >
+              <option value="">없음</option>
+              {materialItemOptions(
+                material.items,
+                material.upgrades,
+                form.upgradeId.trim(),
+                form.materialItemId,
+              ).map(({ itemId, label, disabled }) => (
+                <option key={itemId} value={itemId} disabled={disabled}>
+                  {label}
+                </option>
+              ))}
+            </select>
           </label>
           {COST_FIELDS.map(({ key, label, hint }) =>
             numberInput(
