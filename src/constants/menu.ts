@@ -24,4 +24,5 @@ export const MENU: MenuItem[] = [
       },
     ],
   },
+  { label: "강화 관리", path: "/upgrades" },
 ];
