@@ -26,4 +26,5 @@ export const MENU: MenuItem[] = [
   },
   { label: "강화 관리", path: "/upgrades" },
   { label: "아이템 관리", path: "/items" },
+  { label: "스테이지 관리", path: "/stages" },
 ];
