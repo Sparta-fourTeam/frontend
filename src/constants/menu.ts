@@ -34,4 +34,5 @@ export const MENU: MenuItem[] = [
       { label: "고정 보상 묶음", path: "/reward-definitions" },
     ],
   },
+  { label: "공지 관리", path: "/notices" },
 ];
