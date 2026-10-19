@@ -14,6 +14,9 @@ export interface UpgradeEffectDraft {
   levelValues: string[];
 }
 
+// linear: base + step × L, levels: 레벨별 직접 지정(levelCosts·materialCosts)
+export type CostMode = "linear" | "levels";
+
 export interface UpgradeFormState {
   upgradeId: string;
   maxLevel: string;
@@ -23,6 +26,10 @@ export interface UpgradeFormState {
   costStep: string;
   materialBase: string;
   materialStep: string;
+  costMode: CostMode;
+  levelCosts: string[];
+  materialMode: CostMode;
+  materialCosts: string[];
   effects: UpgradeEffectDraft[];
 }
 
@@ -68,6 +75,10 @@ export const toFormState = (upgrade?: Upgrade): UpgradeFormState => ({
   costStep: str(upgrade?.costStep),
   materialBase: str(upgrade?.materialBase),
   materialStep: str(upgrade?.materialStep),
+  costMode: upgrade?.levelCosts ? "levels" : "linear",
+  levelCosts: (upgrade?.levelCosts ?? []).map(String),
+  materialMode: upgrade?.materialCosts ? "levels" : "linear",
+  materialCosts: (upgrade?.materialCosts ?? []).map(String),
   effects: (upgrade?.effects ?? []).map(effectToDraft),
 });
 
@@ -111,11 +122,40 @@ export const validateUpgrade = (
   )
     return "해금 레벨은 1 이상의 정수입니다.";
 
-  for (const { key, label } of NON_NEGATIVE) {
+  const linear = NON_NEGATIVE.filter(({ key }) =>
+    key.startsWith("cost")
+      ? form.costMode === "linear"
+      : form.materialMode === "linear",
+  );
+  for (const { key, label } of linear) {
     const value = form[key];
     if (value.trim() !== "" && (!isInt(value) || Number(value) < 0))
       return `${label}는 0 이상의 정수입니다.`;
   }
+
+  const levelCostError = (values: string[], label: string) => {
+    const levels = fitLevels(values, maxLevel);
+    const bad = levels.findIndex((v) => !isInt(v) || Number(v) < 1);
+    return bad >= 0
+      ? `${label}: Lv.${bad}→${bad + 1} 값을 1 이상의 정수로 입력하세요.`
+      : null;
+  };
+  if (form.costMode === "levels") {
+    const message = levelCostError(form.levelCosts, "레벨별 골드 비용");
+    if (message) return message;
+  }
+  if (form.materialMode === "levels") {
+    const message = levelCostError(form.materialCosts, "레벨별 재료 수량");
+    if (message) return message;
+  }
+
+  // 서버 규칙: 재료 아이템과 재료 비용(materialBase 또는 materialCosts)은 함께 있어야 한다.
+  const hasMaterialCost =
+    form.materialMode === "levels" || form.materialBase.trim() !== "";
+  if (!!form.materialItemId !== hasMaterialCost)
+    return form.materialItemId
+      ? "재료 아이템을 고르면 재료 비용(materialBase 또는 레벨별 재료 수량)도 입력해야 합니다."
+      : "재료 비용을 입력하려면 재료 아이템을 선택하세요.";
 
   for (const [i, effect] of form.effects.entries()) {
     const label = `효과 ${i + 1}`;
@@ -140,10 +180,17 @@ export const toRequest = (form: UpgradeFormState): UpgradeCreateRequest => {
     // 서버 컬럼이 NOT NULL이라 비워두면 기본값 1을 보낸다.
     unlockLevel: num(form.unlockLevel) ?? 1,
     materialItemId: text(form.materialItemId),
-    costBase: num(form.costBase),
-    costStep: num(form.costStep),
-    materialBase: num(form.materialBase),
-    materialStep: num(form.materialStep),
+    ...(form.costMode === "linear"
+      ? { costBase: num(form.costBase), costStep: num(form.costStep) }
+      : { levelCosts: fitLevels(form.levelCosts, maxLevel).map(Number) }),
+    ...(form.materialMode === "linear"
+      ? {
+          materialBase: num(form.materialBase),
+          materialStep: num(form.materialStep),
+        }
+      : {
+          materialCosts: fitLevels(form.materialCosts, maxLevel).map(Number),
+        }),
     effects: form.effects.map((effect) =>
       effect.mode === "valuePerLevel"
         ? {

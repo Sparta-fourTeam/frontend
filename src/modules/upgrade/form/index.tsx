@@ -7,8 +7,10 @@ import Button from "@/components/common/Button";
 import UpgradeEffectEditor from "./components/upgradeEffectEditor";
 import { useEffectKinds } from "./useEffectKinds";
 import { materialItemOptions, useMaterialItems } from "./useMaterialItems";
+import CostLevelsEditor from "./components/costLevelsEditor";
 import {
   levelCount,
+  type CostMode,
   toFormState,
   toRequest,
   validateUpgrade,
@@ -30,7 +32,12 @@ const LEVEL_FIELDS: {
   required?: boolean;
 }[] = [
   { key: "maxLevel", label: "최대 레벨 *", min: 1, required: true },
-  { key: "unlockLevel", label: "해금 레벨", placeholder: "비우면 1", min: 1 },
+  {
+    key: "unlockLevel",
+    label: "해금 플레이어 레벨",
+    placeholder: "비우면 1",
+    min: 1,
+  },
 ];
 
 const COST_FIELDS: { key: NumberKey; label: string; hint: string }[] = [
@@ -38,6 +45,26 @@ const COST_FIELDS: { key: NumberKey; label: string; hint: string }[] = [
   { key: "costStep", label: "costStep", hint: "레벨당 비용 증가" },
   { key: "materialBase", label: "materialBase", hint: "기본 재료 수" },
   { key: "materialStep", label: "materialStep", hint: "레벨당 재료 증가" },
+];
+
+const COST_MODES: {
+  value: CostMode;
+  label: string;
+  costHint: string;
+  materialHint: string;
+}[] = [
+  {
+    value: "linear",
+    label: "선형",
+    costHint: "costBase + costStep × L",
+    materialHint: "materialBase + materialStep × L",
+  },
+  {
+    value: "levels",
+    label: "레벨별 지정",
+    costHint: "levelCosts",
+    materialHint: "materialCosts",
+  },
 ];
 
 interface UpgradeFormProps {
@@ -104,6 +131,28 @@ export default function UpgradeForm({
     </label>
   );
 
+  const modeChips = (key: "costMode" | "materialMode", value: CostMode) => (
+    <div className={cx("chips", "modeChips")}>
+      {COST_MODES.map((mode) => (
+        <label
+          key={mode.value}
+          className={cx("chip", "small", { checked: value === mode.value })}
+        >
+          <input
+            type="radio"
+            name={key}
+            checked={value === mode.value}
+            onChange={() => set(key, mode.value)}
+          />
+          {mode.label}
+          <span className={cx("chipHint")}>
+            {key === "costMode" ? mode.costHint : mode.materialHint}
+          </span>
+        </label>
+      ))}
+    </div>
+  );
+
   const message = formError ?? error;
 
   return (
@@ -139,15 +188,48 @@ export default function UpgradeForm({
 
       <section className={cx("card")}>
         <h2 className={cx("cardTitle")}>
-          비용 · 재료
-          <span className={cx("hint")}>0 이상의 정수 · 비우면 없음</span>
+          골드 비용
+          <span className={cx("hint")}>
+            현재 레벨 L에서 다음 레벨로 올릴 때 드는 골드 · 비우면 무료
+          </span>
+        </h2>
+        {modeChips("costMode", form.costMode)}
+        {form.costMode === "linear" ? (
+          <div className={cx("grid")}>
+            {COST_FIELDS.filter(({ key }) => key.startsWith("cost")).map(
+              ({ key, label, hint }) =>
+                numberInput(
+                  key,
+                  <>
+                    {label}
+                    <span className={cx("hint")}>{hint}</span>
+                  </>,
+                  { min: 0 },
+                ),
+            )}
+          </div>
+        ) : (
+          <CostLevelsEditor
+            values={form.levelCosts}
+            levelCount={levelCount(form.maxLevel)}
+            onChange={(values) => set("levelCosts", values)}
+          />
+        )}
+      </section>
+
+      <section className={cx("card")}>
+        <h2 className={cx("cardTitle")}>
+          재료
+          <span className={cx("hint")}>
+            재료 아이템과 재료 수량은 함께 입력 · 둘 다 비우면 재료 없음
+          </span>
         </h2>
         {material.error && <p className={cx("error")}>{material.error}</p>}
         <div className={cx("grid")}>
           <label className={cx("field")}>
             <span className={cx("fieldLabel")}>
               재료 아이템
-              <span className={cx("hint")}>장비 재료만 표시</span>
+              <span className={cx("hint")}>장비 재료·대상 없음만 표시</span>
             </span>
             <select
               className={cx("input")}
@@ -167,15 +249,29 @@ export default function UpgradeForm({
               ))}
             </select>
           </label>
-          {COST_FIELDS.map(({ key, label, hint }) =>
-            numberInput(
-              key,
-              <>
-                {label}
-                <span className={cx("hint")}>{hint}</span>
-              </>,
-              { min: 0 },
-            ),
+        </div>
+        <div className={cx("section")}>
+          {modeChips("materialMode", form.materialMode)}
+          {form.materialMode === "linear" ? (
+            <div className={cx("grid")}>
+              {COST_FIELDS.filter(({ key }) => key.startsWith("material")).map(
+                ({ key, label, hint }) =>
+                  numberInput(
+                    key,
+                    <>
+                      {label}
+                      <span className={cx("hint")}>{hint}</span>
+                    </>,
+                    { min: 0 },
+                  ),
+              )}
+            </div>
+          ) : (
+            <CostLevelsEditor
+              values={form.materialCosts}
+              levelCount={levelCount(form.maxLevel)}
+              onChange={(values) => set("materialCosts", values)}
+            />
           )}
         </div>
       </section>

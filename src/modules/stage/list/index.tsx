@@ -7,10 +7,13 @@ import s from "../components/stage.module.scss";
 import Title from "@/components/common/Title";
 import Button from "@/components/common/Button";
 import {
+  STAGE_RATINGS,
   createStage,
+  getStageRatingRewards,
   getStageRewards,
   getStages,
   type Stage,
+  type StageRating,
   type StageReward,
 } from "@/apis/stage";
 
@@ -23,6 +26,7 @@ export default function StageList() {
   const router = useRouter();
   const [stages, setStages] = useState<Stage[]>([]);
   const [rewards, setRewards] = useState<Map<number, StageReward>>(new Map());
+  const [ratings, setRatings] = useState<Map<number, StageRating[]>>(new Map());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [newStageId, setNewStageId] = useState("");
@@ -31,10 +35,22 @@ export default function StageList() {
   useEffect(() => {
     let ignore = false;
     Promise.all([getStages(), getStageRewards()])
-      .then(([stageData, rewardData]) => {
+      .then(async ([stageData, rewardData]) => {
+        // 별등급 보상은 스테이지별 조회 API만 있어 스테이지마다 요청한다.
+        const ratingData = await Promise.all(
+          stageData.map((stage) => getStageRatingRewards(stage.stageId)),
+        );
         if (ignore) return;
         setStages([...stageData].sort((a, b) => a.stageId - b.stageId));
         setRewards(new Map(rewardData.map((r) => [r.stageId, r])));
+        setRatings(
+          new Map(
+            stageData.map((stage, i) => [
+              stage.stageId,
+              ratingData[i].map((r) => r.rating),
+            ]),
+          ),
+        );
       })
       .catch((e) => {
         if (!ignore)
@@ -75,7 +91,7 @@ export default function StageList() {
       <div className={cx("pageHeader")}>
         <Title
           title="스테이지 관리"
-          subtitle="스테이지를 선택하면 보상을 등록·수정할 수 있습니다"
+          subtitle="스테이지를 선택하면 기본 보상·별등급 보상을 관리할 수 있습니다"
           align="left"
         />
         <form className={cx("headerActions")} onSubmit={handleAdd}>
@@ -107,11 +123,12 @@ export default function StageList() {
             <tr>
               <th className={cx("colNo")}>No.</th>
               <th>스테이지 ID</th>
-              <th>보상</th>
+              <th>기본 보상</th>
               <th>baseExp</th>
               <th>3성 보너스 Exp</th>
               <th>finalCoin</th>
               <th>보상 아이템</th>
+              <th>별등급 보상</th>
             </tr>
           </thead>
           <tbody>
@@ -143,6 +160,22 @@ export default function StageList() {
                     ) : (
                       <span className={cx("muted")}>-</span>
                     )}
+                  </td>
+                  <td>
+                    <div className={cx("tags")}>
+                      {STAGE_RATINGS.map((rating) => (
+                        <span
+                          key={rating}
+                          className={cx("tag", {
+                            tagOff: !ratings
+                              .get(stage.stageId)
+                              ?.includes(rating),
+                          })}
+                        >
+                          ★{rating}
+                        </span>
+                      ))}
+                    </div>
                   </td>
                 </tr>
               );

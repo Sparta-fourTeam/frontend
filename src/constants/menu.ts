@@ -27,4 +27,11 @@ export const MENU: MenuItem[] = [
   { label: "강화 관리", path: "/upgrades" },
   { label: "아이템 관리", path: "/items" },
   { label: "스테이지 관리", path: "/stages" },
+  {
+    label: "보상 관리",
+    children: [
+      { label: "보상 기준", path: "/reward-rules" },
+      { label: "고정 보상 묶음", path: "/reward-definitions" },
+    ],
+  },
 ];

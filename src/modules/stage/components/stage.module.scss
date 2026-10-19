@@ -226,3 +226,93 @@
 .off {
   color: #a1a1aa;
 }
+
+.subTitle {
+  margin: 18px 0 10px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #3f3f46;
+}
+
+.notice {
+  margin-bottom: 12px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #f0fdf4;
+  color: #16a34a;
+  font-size: 0.9rem;
+}
+
+.ratingList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ratingItem {
+  padding: 14px 16px;
+  border: 1px solid #e4e4e7;
+  border-radius: 10px;
+  background: #fafafa;
+
+  .footer {
+    margin-top: 12px;
+  }
+}
+
+.ratingHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+}
+
+.stars {
+  font-size: 1.05rem;
+  letter-spacing: 2px;
+  color: #f59e0b;
+}
+
+.starsEmpty {
+  color: #e4e4e7;
+}
+
+.tagOff {
+  background: transparent;
+  color: #d4d4d8;
+  text-decoration: line-through;
+}
+
+.wide {
+  grid-column: 1 / -1;
+}
+
+.definitionPreview {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  font-size: 0.875rem;
+}
+
+.previewLink {
+  margin-left: 4px;
+  color: #2563eb;
+  font-size: 0.85rem;
+}
+
+.warning {
+  margin-bottom: 12px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #fffbeb;
+  color: #b45309;
+  font-size: 0.9rem;
+
+  a {
+    color: inherit;
+    font-weight: 600;
+  }
+}

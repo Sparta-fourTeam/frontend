@@ -4,18 +4,16 @@ import { useState } from "react";
 import classnames from "classnames/bind";
 import s from "../components/stage.module.scss";
 import Button from "@/components/common/Button";
+import RewardItemsEditor from "@/components/common/RewardItemsEditor";
 import {
-  MIN_FINAL_COIN,
-  SKILL_MATERIAL_MIN_AMOUNT,
-  SKILL_MATERIAL_PREFIX,
-  emptyRewardItem,
+  minCoin,
+  minItemAmount,
   toFormState,
   toRequest,
   validateReward,
-  type RewardItemDraft,
   type StageRewardFormState,
 } from "./stageRewardFormState";
-import type { Item } from "@/apis/item";
+import type { RewardRules } from "@/apis/rewardRules";
 import type { StageReward, StageRewardRequest } from "@/apis/stage";
 
 const cx = classnames.bind(s);
@@ -23,190 +21,145 @@ const cx = classnames.bind(s);
 const preventWheel = (e: React.WheelEvent<HTMLInputElement>) =>
   e.currentTarget.blur();
 
-type NumberKey = "baseExp" | "threeStarBonusExp" | "finalCoin";
+const KIND_LABEL: Record<string, string> = {
+  SkillMaterial: "스킬 재료",
+  EquipmentMaterial: "장비 재료",
+  GemChest: "젬 상자",
+};
 
-const NUMBER_FIELDS: {
-  key: NumberKey;
-  label: string;
-  hint: string;
-  min: number;
-}[] = [
-  {
-    key: "baseExp",
-    label: "baseExp *",
-    hint: "웨이브 1개 이상 완료 시",
-    min: 0,
-  },
-  {
-    key: "threeStarBonusExp",
-    label: "threeStarBonusExp *",
-    hint: "별 3개 추가 경험치",
-    min: 0,
-  },
-  {
-    key: "finalCoin",
-    label: "finalCoin *",
-    hint: `20웨이브 총 코인 · ${MIN_FINAL_COIN} 이상`,
-    min: MIN_FINAL_COIN,
-  },
-];
+type NumberKey = "baseExp" | "threeStarBonusExp" | "finalCoin";
 
 interface StageRewardFormProps {
   reward?: StageReward;
-  items: Item[];
-  submitText: string;
-  error?: string | null;
-  onSubmit: (value: StageRewardRequest) => Promise<void>;
+  rules: RewardRules | null;
+  onSave: (value: StageRewardRequest) => Promise<void>;
   onDelete?: () => Promise<void>;
 }
 
+// 웨이브 진행(배틀 종료) 기본 보상
 export default function StageRewardForm({
   reward,
-  items,
-  submitText,
-  error,
-  onSubmit,
+  rules,
+  onSave,
   onDelete,
 }: StageRewardFormProps) {
   const [form, setForm] = useState(() => toFormState(reward));
   const [busy, setBusy] = useState<"submit" | "delete" | null>(null);
-  const [formError, setFormError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
 
   const set = <K extends keyof StageRewardFormState>(
     key: K,
     value: StageRewardFormState[K],
   ) => setForm((prev) => ({ ...prev, [key]: value }));
 
-  const updateItem = (index: number, patch: Partial<RewardItemDraft>) =>
-    set(
-      "items",
-      form.items.map((item, i) => (i === index ? { ...item, ...patch } : item)),
-    );
+  const coinMin = minCoin(rules);
+  const numberFields: {
+    key: NumberKey;
+    label: string;
+    hint: string;
+    min: number;
+  }[] = [
+    {
+      key: "baseExp",
+      label: "baseExp *",
+      hint: "웨이브 1개 이상 완료 시 1회",
+      min: 0,
+    },
+    {
+      key: "threeStarBonusExp",
+      label: "threeStarBonusExp *",
+      hint: "20웨이브 3별 완료 추가",
+      min: 0,
+    },
+    {
+      key: "finalCoin",
+      label: "finalCoin *",
+      hint: `20웨이브 총 코인 · ${coinMin} 이상`,
+      min: coinMin,
+    },
+  ];
+
+  // 보상 기준에 분류된 itemId만 선택 가능 (랜덤 추첨 ID 포함)
+  const options = Object.entries(rules?.items ?? {})
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([itemId, rule]) => ({
+      value: itemId,
+      text: `${itemId} · ${KIND_LABEL[rule.kind] ?? rule.kind}${rule.random ? " · 랜덤" : ""}`,
+    }));
+
+  const run = async (
+    kind: "submit" | "delete",
+    action: () => Promise<void>,
+  ) => {
+    setBusy(kind);
+    try {
+      await action();
+    } catch (e) {
+      setMessage(e instanceof Error ? e.message : "요청에 실패했습니다.");
+    }
+    setBusy(null);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (busy) return;
-    const invalid = validateReward(form);
-    setFormError(invalid);
+    const invalid = validateReward(form, rules);
+    setMessage(invalid);
     if (invalid) return;
-    setBusy("submit");
-    await onSubmit(toRequest(form));
-    setBusy(null);
+    await run("submit", () => onSave(toRequest(form)));
   };
 
   const handleDelete = async () => {
     if (!onDelete || busy) return;
-    setBusy("delete");
-    await onDelete();
-    setBusy(null);
+    setMessage(null);
+    await run("delete", onDelete);
   };
-
-  // 목록에 없는 기존 itemId도 선택지에 남겨 값이 사라지지 않게 한다.
-  const itemOptions = (current: string) => {
-    const options = items.map((item) => ({
-      value: item.itemId,
-      text: item.targetId ? `${item.itemId} (스킬 재료)` : item.itemId,
-    }));
-    if (current && !items.some((item) => item.itemId === current))
-      options.unshift({ value: current, text: `${current} (없는 아이템)` });
-    return options;
-  };
-
-  const message = formError ?? error;
 
   return (
-    <form onSubmit={handleSubmit}>
-      <section className={cx("card")}>
-        <h2 className={cx("cardTitle")}>
-          경험치 · 코인
-          <span className={cx("hint")}>모두 필수 · 0 이상의 정수</span>
-        </h2>
-        <div className={cx("grid")}>
-          {NUMBER_FIELDS.map(({ key, label, hint, min }) => (
-            <label key={key} className={cx("field")}>
-              <span className={cx("fieldLabel")}>
-                {label}
-                <span className={cx("hint")}>{hint}</span>
-              </span>
-              <input
-                type="number"
-                className={cx("input")}
-                value={form[key]}
-                onChange={(e) => set(key, e.target.value)}
-                onWheel={preventWheel}
-                min={min}
-                step={1}
-                required
-              />
-            </label>
-          ))}
-        </div>
-      </section>
+    <form className={cx("card")} onSubmit={handleSubmit}>
+      <h2 className={cx("cardTitle")}>
+        기본 보상 (웨이브 진행)
+        <span className={cx("hint")}>
+          {reward ? "등록됨" : "미등록"} · 지급량은 보상 기준의 일정으로 계산
+        </span>
+      </h2>
+      <div className={cx("grid")}>
+        {numberFields.map(({ key, label, hint, min }) => (
+          <label key={key} className={cx("field")}>
+            <span className={cx("fieldLabel")}>
+              {label}
+              <span className={cx("hint")}>{hint}</span>
+            </span>
+            <input
+              type="number"
+              className={cx("input")}
+              value={form[key]}
+              onChange={(e) => set(key, e.target.value)}
+              onWheel={preventWheel}
+              min={min}
+              step={1}
+              required
+            />
+          </label>
+        ))}
+      </div>
 
-      <section className={cx("card")}>
-        <h2 className={cx("cardTitle")}>
-          보상 아이템 (items)
-          <span className={cx("hint")}>
-            20웨이브 완료 시 총수량 · 아이템 중복 불가 · {SKILL_MATERIAL_PREFIX}
-            로 시작하면 {SKILL_MATERIAL_MIN_AMOUNT}개 이상
-          </span>
-        </h2>
-        <div className={cx("itemList")}>
-          {form.items.length === 0 && (
-            <p className={cx("muted")}>보상 아이템이 없습니다.</p>
-          )}
-          {form.items.map((item, index) => (
-            <div key={item.key} className={cx("itemRow")}>
-              <span className={cx("itemNo")}>{index + 1}</span>
-              <select
-                className={cx("input", "itemSelect")}
-                value={item.itemId}
-                onChange={(e) => updateItem(index, { itemId: e.target.value })}
-                aria-label="아이템"
-              >
-                <option value="">아이템 선택</option>
-                {itemOptions(item.itemId).map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.text}
-                  </option>
-                ))}
-              </select>
-              <input
-                type="number"
-                className={cx("input", "amountInput")}
-                value={item.finalAmount}
-                onChange={(e) =>
-                  updateItem(index, { finalAmount: e.target.value })
-                }
-                onWheel={preventWheel}
-                placeholder="총수량"
-                min={0}
-                step={1}
-                aria-label="총수량"
-              />
-              <Button
-                size="small"
-                variant="danger"
-                onClick={() =>
-                  set(
-                    "items",
-                    form.items.filter((_, i) => i !== index),
-                  )
-                }
-              >
-                삭제
-              </Button>
-            </div>
-          ))}
-          <Button
-            size="small"
-            variant="outline"
-            onClick={() => set("items", [...form.items, emptyRewardItem()])}
-          >
-            + 아이템 추가
-          </Button>
-        </div>
-      </section>
+      <h3 className={cx("subTitle")}>
+        보상 아이템
+        <span className={cx("hint")}>
+          20웨이브 완료 시 총수량 · 보상 기준에 분류된 itemId만 · 최소 수량은
+          분류별 최소 총량
+        </span>
+      </h3>
+      <RewardItemsEditor
+        items={form.items}
+        options={options}
+        amountPlaceholder="총수량"
+        rowHint={(itemId) =>
+          rules?.items[itemId] ? `최소 ${minItemAmount(rules, itemId)}` : null
+        }
+        onChange={(items) => set("items", items)}
+      />
 
       <div className={cx("footer")}>
         {message && <p className={cx("inlineError")}>{message}</p>}
@@ -219,8 +172,8 @@ export default function StageRewardForm({
             {busy === "delete" ? "삭제 중..." : "보상 삭제"}
           </Button>
         )}
-        <Button type="submit" disabled={busy !== null}>
-          {busy === "submit" ? "저장 중..." : submitText}
+        <Button type="submit" disabled={busy !== null || !rules}>
+          {busy === "submit" ? "저장 중..." : reward ? "저장" : "보상 등록"}
         </Button>
       </div>
     </form>

@@ -19,6 +19,11 @@ export interface Upgrade {
   materialBase?: number;
   materialStep?: number;
   effects?: UpgradeEffect[];
+  // 현재 레벨 L에서 다음 레벨 구매 비용 = levelCosts[L]. 있으면 base/step 대신 사용
+  levelCosts?: number[] | null;
+  materialCosts?: number[] | null;
+  // 목록 조회에서만 옴: 연결 스킬까지 고려한 실제 구매 해금 플레이어 레벨
+  effectiveUnlockLevel?: number;
 }
 
 export interface UpgradeRequest {
@@ -29,6 +34,8 @@ export interface UpgradeRequest {
   costStep?: number;
   materialBase?: number;
   materialStep?: number;
+  levelCosts?: number[];
+  materialCosts?: number[];
   effects?: UpgradeEffect[];
 }
 

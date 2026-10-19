@@ -13,6 +13,18 @@ const cx = classnames.bind(s);
 const show = (value?: number | string | null) =>
   value == null || value === "" ? "-" : value;
 
+// 레벨별 지정이면 값 목록, 선형이면 base / step
+const costText = (
+  levels?: number[] | null,
+  base?: number | null,
+  step?: number | null,
+) =>
+  levels?.length
+    ? `레벨별 ${levels.join(" · ")}`
+    : base == null
+      ? "-"
+      : `${base} / +${show(step)}`;
+
 export default function UpgradeList() {
   const router = useRouter();
   const [upgrades, setUpgrades] = useState<Upgrade[]>([]);
@@ -67,8 +79,8 @@ export default function UpgradeList() {
               <th>강화 ID</th>
               <th>최대 레벨</th>
               <th>해금 레벨</th>
-              <th>비용 (base / step)</th>
-              <th>재료 (base / step)</th>
+              <th>골드 비용</th>
+              <th>재료</th>
               <th>효과</th>
             </tr>
           </thead>
@@ -84,9 +96,19 @@ export default function UpgradeList() {
                   <span className={cx("code")}>{upgrade.upgradeId}</span>
                 </td>
                 <td>{upgrade.maxLevel}</td>
-                <td>{upgrade.unlockLevel}</td>
                 <td>
-                  {show(upgrade.costBase)} / {show(upgrade.costStep)}
+                  {upgrade.effectiveUnlockLevel ?? upgrade.unlockLevel}
+                  {upgrade.effectiveUnlockLevel != null &&
+                    upgrade.effectiveUnlockLevel !== upgrade.unlockLevel && (
+                      <span className={cx("muted")}> (스킬 기준)</span>
+                    )}
+                </td>
+                <td>
+                  {costText(
+                    upgrade.levelCosts,
+                    upgrade.costBase,
+                    upgrade.costStep,
+                  )}
                 </td>
                 <td>
                   {upgrade.materialItemId ? (
@@ -94,8 +116,11 @@ export default function UpgradeList() {
                       <span className={cx("name")}>
                         {upgrade.materialItemId}
                       </span>{" "}
-                      {show(upgrade.materialBase)} /{" "}
-                      {show(upgrade.materialStep)}
+                      {costText(
+                        upgrade.materialCosts,
+                        upgrade.materialBase,
+                        upgrade.materialStep,
+                      )}
                     </>
                   ) : (
                     <span className={cx("muted")}>-</span>

@@ -24,7 +24,7 @@ interface ItemDetailProps {
 
 export default function ItemDetail({ itemId }: ItemDetailProps) {
   const router = useRouter();
-  const { options, error: optionError } = useItemOptions();
+  const { options, loaded, error: optionError } = useItemOptions();
   const [item, setItem] = useState<Item | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -77,7 +77,8 @@ export default function ItemDetail({ itemId }: ItemDetailProps) {
         <p className={cx("error")}>{loadError ?? optionError}</p>
       )}
 
-      {item ? (
+      {/* 대상 종류(스킬/강화)를 판별하려면 선택 목록이 먼저 있어야 한다. */}
+      {item && loaded ? (
         <ItemForm
           item={item}
           options={options}

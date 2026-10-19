@@ -1,15 +1,10 @@
+import {
+  toRewardItemDrafts,
+  validateRewardItemDrafts,
+  type RewardItemDraft,
+} from "@/components/common/RewardItemsEditor";
+import { minimumFinal, type RewardRules } from "@/apis/rewardRules";
 import type { StageReward, StageRewardRequest } from "@/apis/stage";
-
-// 서버 검증 규칙과 맞춘 값
-export const MIN_FINAL_COIN = 125;
-export const SKILL_MATERIAL_PREFIX = "material.skill";
-export const SKILL_MATERIAL_MIN_AMOUNT = 21;
-
-export interface RewardItemDraft {
-  key: string;
-  itemId: string;
-  finalAmount: string;
-}
 
 export interface StageRewardFormState {
   baseExp: string;
@@ -18,53 +13,46 @@ export interface StageRewardFormState {
   items: RewardItemDraft[];
 }
 
-let seq = 0;
-const newKey = () => `reward-item-${++seq}`;
-
-export const emptyRewardItem = (): RewardItemDraft => ({
-  key: newKey(),
-  itemId: "",
-  finalAmount: "",
-});
-
 const str = (v: number | null | undefined) => (v == null ? "" : String(v));
+const isInt = (value: string) => /^\d+$/.test(value.trim());
 
 export const toFormState = (reward?: StageReward): StageRewardFormState => ({
   baseExp: str(reward?.baseExp),
   threeStarBonusExp: str(reward?.threeStarBonusExp),
   finalCoin: str(reward?.finalCoin),
-  items: (reward?.items ?? []).map((item) => ({
-    key: newKey(),
-    itemId: item.itemId,
-    finalAmount: String(item.finalAmount),
-  })),
+  items: toRewardItemDrafts(
+    (reward?.items ?? []).map((item) => ({
+      itemId: item.itemId,
+      amount: item.finalAmount,
+    })),
+  ),
 });
 
-const isInt = (value: string) => /^\d+$/.test(value.trim());
+// 보상 기준(reward-rules)으로 정해지는 최소 총량. 기준이 없으면 0
+export const minCoin = (rules: RewardRules | null) =>
+  rules ? minimumFinal(rules.schedules.Coin) : 0;
 
-export const validateReward = (form: StageRewardFormState): string | null => {
+export const minItemAmount = (rules: RewardRules | null, itemId: string) => {
+  const rule = rules?.items[itemId];
+  return rules && rule ? minimumFinal(rules.schedules[rule.kind]) : 0;
+};
+
+export const validateReward = (
+  form: StageRewardFormState,
+  rules: RewardRules | null,
+): string | null => {
+  if (!rules)
+    return "보상 기준이 설정되지 않아 저장할 수 없습니다. 보상 기준을 먼저 등록하세요.";
   if (!isInt(form.baseExp)) return "baseExp는 0 이상의 정수입니다.";
   if (!isInt(form.threeStarBonusExp))
     return "threeStarBonusExp는 0 이상의 정수입니다.";
-  if (!isInt(form.finalCoin) || Number(form.finalCoin) < MIN_FINAL_COIN)
-    return `finalCoin은 ${MIN_FINAL_COIN} 이상의 정수입니다.`;
-
-  const seen = new Set<string>();
-  for (const [i, item] of form.items.entries()) {
-    const label = `보상 아이템 ${i + 1}`;
-    if (!item.itemId) return `${label}: 아이템을 선택하세요.`;
-    if (seen.has(item.itemId))
-      return `${label}: ${item.itemId}이(가) 중복됩니다.`;
-    seen.add(item.itemId);
-    if (!isInt(item.finalAmount))
-      return `${label}: 수량은 0 이상의 정수입니다.`;
-    if (
-      item.itemId.startsWith(SKILL_MATERIAL_PREFIX) &&
-      Number(item.finalAmount) < SKILL_MATERIAL_MIN_AMOUNT
-    )
-      return `${label}: 스킬 재료는 ${SKILL_MATERIAL_MIN_AMOUNT}개 이상이어야 합니다.`;
-  }
-  return null;
+  if (!isInt(form.finalCoin) || Number(form.finalCoin) < minCoin(rules))
+    return `finalCoin은 ${minCoin(rules)} 이상의 정수입니다(보상 기준 코인 최소 총량).`;
+  return validateRewardItemDrafts(
+    form.items,
+    (itemId) => minItemAmount(rules, itemId),
+    (itemId) => !!rules.items[itemId],
+  );
 };
 
 export const toRequest = (form: StageRewardFormState): StageRewardRequest => ({
@@ -73,6 +61,6 @@ export const toRequest = (form: StageRewardFormState): StageRewardRequest => ({
   finalCoin: Number(form.finalCoin),
   items: form.items.map((item) => ({
     itemId: item.itemId,
-    finalAmount: Number(item.finalAmount),
+    finalAmount: Number(item.amount),
   })),
 });
