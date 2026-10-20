@@ -1,4 +1,5 @@
 import { useUserInfo } from "@/store/useUserInfo";
+import { isAdminToken, signInPath, webLogout, type SignOutReason } from "./auth";
 
 export const throwIfFailed = async (response: Response) => {
   if (response.ok) return;
@@ -30,16 +31,30 @@ const refreshTokens = async () => {
 
 let refreshing: Promise<boolean> | null = null;
 
+// 로그인 정보를 지우고 로그인 화면으로 보낸다.
+export const signOut = async (reason?: SignOutReason) => {
+  useUserInfo.getState().clearUser();
+  await webLogout();
+  window.location.replace(signInPath(reason));
+};
+
 export const apiFetch = async (path: string, init?: RequestInit) => {
   const response = await fetch(path, withToken(init));
-  if (response.status !== 401 || !useUserInfo.getState().user) return response;
+  const user = useUserInfo.getState().user;
+  if (!user) return response;
+
+  // 관리자 권한이 없는 계정(403)은 로그인 화면으로 보낸다.
+  if (response.status === 403 && !isAdminToken(user.accessToken)) {
+    await signOut("forbidden");
+    return response;
+  }
+  if (response.status !== 401) return response;
 
   refreshing ??= refreshTokens().finally(() => {
     refreshing = null;
   });
   if (await refreshing) return fetch(path, withToken(init));
 
-  useUserInfo.getState().clearUser();
-  window.location.replace("/auth");
+  await signOut("expired");
   return response;
 };
