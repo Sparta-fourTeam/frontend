@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import classnames from "classnames/bind";
 import s from "./Sidebar.module.scss";
 import { MENU, type MenuItem } from "@/constants/menu";
+import { webLogout } from "@/apis/auth";
+import { useUserInfo } from "@/store/useUserInfo";
 
 const cx = classnames.bind(s);
 
@@ -15,10 +17,39 @@ export default function Sidebar() {
       <Link href="/skills" className={cx("logo")}>
         두들두들
       </Link>
-      <nav>
+      <nav className={cx("nav")}>
         <MenuList items={MENU} depth={0} />
       </nav>
+      <LogoutButton />
     </aside>
+  );
+}
+
+function LogoutButton() {
+  const router = useRouter();
+  const clearUser = useUserInfo((state) => state.clearUser);
+  const [busy, setBusy] = useState(false);
+
+  const handleLogout = async () => {
+    if (busy || !confirm("로그아웃할까요?")) return;
+    setBusy(true);
+    // 서버 요청이 실패해도 화면에서는 로그아웃 처리한다.
+    await webLogout();
+    clearUser();
+    router.replace("/auth");
+  };
+
+  return (
+    <div className={cx("footer")}>
+      <button
+        type="button"
+        className={cx("logout")}
+        onClick={handleLogout}
+        disabled={busy}
+      >
+        {busy ? "로그아웃 중..." : "로그아웃"}
+      </button>
+    </div>
   );
 }
 

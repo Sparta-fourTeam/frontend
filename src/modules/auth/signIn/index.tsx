@@ -3,12 +3,16 @@ import Paper from "@/components/common/Paper";
 import Title from "@/components/common/Title";
 import SignInForm from "./components/signInForm";
 
-export default function SignIn() {
+interface SignInProps {
+  notice?: string | null;
+}
+
+export default function SignIn({ notice }: SignInProps) {
   return (
     <Container>
       <Paper>
         <Title title="로그인" subtitle="계정을 선택해서 시작하세요" />
-        <SignInForm />
+        <SignInForm notice={notice} />
       </Paper>
     </Container>
   );

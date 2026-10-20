@@ -35,4 +35,5 @@ export const MENU: MenuItem[] = [
     ],
   },
   { label: "공지 관리", path: "/notices" },
+  { label: "우편 발송", path: "/mails" },
 ];
